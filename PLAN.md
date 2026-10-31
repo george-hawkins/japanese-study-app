@@ -106,7 +106,7 @@ Daruma (the repo is `japanese-study-app`) is a small installable web app (PWA) f
   - Daruma red `#b5162b`: top bar and primary buttons.
   - Gold `#e6c877` / `#c9a14a`: the active tab and Undo.
   - White paper, with pale vermilion rules (`#efcbc5`, `#e2a59c`) for list lines and guides.
-- The drawing pad shows one practice square with a dashed 十 guide. It's CSS behind the canvas, so Clear doesn't remove it, and it's sized with container query units.
+- The drawing pad is plain white with no guides. (A practice square with a dashed 十 guide was tried in 0.5.0 and removed at George's request.)
 - Swiping a correction reveals a 済 ("done") seal. "Maybe" sits on faintly tinted paper, with a muted heading, to show it's lower priority.
 - Line-style SVG icons: a cloud with a state mark for sync, sliders for settings.
 - System fonts only (Roboto and Noto Sans CJK on Android). Sentence-case headings, no all-caps labels.

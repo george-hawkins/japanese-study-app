@@ -156,26 +156,7 @@ main { flex: 1; min-height: 0; position: relative; }
 #kanji-list li { padding: 12px 12px; overflow-wrap: anywhere; }
 #kanji-list:empty::before { padding: 14px 12px; font-size: 14px; }
 
-#kanji-pad { flex: 1; position: relative; container-type: size; }
-
-/* The practice square: a single manuscript-paper cell with a dashed 十 guide. */
-#kanji-guide {
-  --size: calc(min(100cqw, 100cqh) - 40px);
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: var(--size);
-  height: var(--size);
-  transform: translate(-50%, -50%);
-  border: 1.5px solid var(--rule-strong);
-}
-#kanji-guide::before, #kanji-guide::after {
-  content: "";
-  position: absolute;
-  border: 0 dashed var(--rule);
-}
-#kanji-guide::before { left: 50%; top: 0; bottom: 0; border-left-width: 1.5px; }
-#kanji-guide::after { top: 50%; left: 0; right: 0; border-top-width: 1.5px; }
+#kanji-pad { flex: 1; position: relative; }
 
 #kanji-canvas {
   position: absolute;
