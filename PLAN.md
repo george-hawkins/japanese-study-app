@@ -14,6 +14,7 @@ Daruma (the repo is `japanese-study-app`) is a small installable web app (PWA) f
 - [x] Tested in headless Chrome (drawing, add, swipe-to-done + undo, tap-to-edit, Enter for new line, sync scenarios against a mocked GitHub API)
 - [ ] GitHub Pages enabled (George, see below)
 - [ ] Notes repo + token created and entered in Settings (George)
+- [x] Multi-instance sync with three-way merge (0.7). Unit tests: `node --test` (in `test/`).
 - [ ] Try it on the phone; tune brush width (`BRUSH` in `js/kanji.js`) and anything else that feels off
 
 ## Requirements (the "what")
@@ -36,14 +37,18 @@ Daruma (the repo is `japanese-study-app`) is a small installable web app (PWA) f
 ### Persistence and sync
 - **Local first.** Every change is written to localStorage immediately. This is what guarantees nothing is lost, and it costs nothing. Text being typed in the "add" boxes is saved as a draft too. The service worker only caches the app's code, not data.
 - All `*.github.io` project sites share one origin, so all keys are prefixed `daruma:`.
-- **GitHub is a sync target.** Pushes (one commit each) happen when the app goes to the background, 60 s after the last edit, or when the sync indicator is tapped. Pulls happen on open and on returning to the app (if more than 30 s since the last one). An interrupted push leaves the doc "dirty" and is retried next time.
-- **Edits are almost always made in the app.** Occasionally George edits a file on GitHub, e.g. to seed initial entries. He then syncs (or opens the app) before changing anything locally. Conflict rules:
-  - No local changes, file changed on GitHub (the safe case): take GitHub's version silently.
-  - Local changes, file changed on GitHub (a conflict): ask *Use GitHub's version* / *Keep this device's version* / *Decide later*. "Decide later" records the remote sha in `state.conflict`. Nothing is pushed (the quick push skips the doc, and the stale sha would be rejected anyway). The cloud shows "!", and automatic syncs don't ask again until the remote changes again; a manual sync (tapping the cloud, or *Sync now*) asks again.
-  - First sync with a (new) file URL while local data exists: the two are combined (union of items), so setting up sync never throws anything away.
-- `PUT` sends the last known blob `sha`, so GitHub rejects blind overwrites. If that happens, the error shows on the sync indicator and the next sync resolves it.
+- **GitHub is a sync target.** Pushes (one commit each) happen when the app goes to the background, 60 s after the last edit, or when the sync indicator is tapped. Pulls happen on open, on returning to the app or the window regaining focus (if more than 30 s since the last pull), and every 5 minutes while visible (skipped while an input has focus). An interrupted push leaves the doc "dirty" and is retried next time.
+- **Several instances edit the same files** (George adds corrections on his phone and marks them done in a laptop browser later; he also occasionally edits files on GitHub). Switching is slow and best effort is fine. Design, from 0.7:
+  - Each doc stores `sha` (the blob it last synced) and `base` (that blob's parsed content). No git history beyond that is needed: `base` is the common ancestor for a three-way merge.
+  - File changed on GitHub, no local changes: take GitHub's version.
+  - Changed on both sides: `merge3(base, local, remote)` in `js/merge.js`, then push the result and show a notice. The merge works per item text, deciding which list it ends up in. One side changed it: take that. Both made the same change: take it. Both changed it differently: never lose the item, and prefer this device's list. Edits are remove-plus-add, so "edited here, marked done there" keeps both. New arrivals go at the top of their list (this device's first), then the rest in GitHub's order. Identical lines collapse into one.
+  - First sync with a file URL: base = empty, so the merge is a union.
+  - Docs synced by older versions have no `base`. It is fetched from GitHub by sha (`git/blobs/{sha}`), falling back to empty (union).
+  - Writes send the base `sha`, so GitHub rejects them (409/422) if another instance pushed in between. The sync then re-reads, re-merges and retries (up to 3 attempts). The quick push on hide doesn't read first; if it's rejected, the next full sync merges.
+  - Header, preamble and unknown sections can only change on GitHub, so GitHub's are kept.
+  - 0.6's "which version do you want to keep?" prompt was replaced by this merge.
 - Settings → *Sync details* shows, per document, the item count, whether there are unpushed changes, the last known GitHub blob sha and the result of the last sync. A missing file is created on the first sync, even when there is nothing new to push.
-- Sync indicator: a line-icon cloud with a tick (synced), an up arrow (pending; pulsing while syncing), a slash (offline / not set up) or "!" (error or unresolved conflict). Tapping it shows the status and runs a manual sync.
+- Sync indicator: a line-icon cloud with a tick (synced), an up arrow (pending; pulsing while syncing), a slash (offline / not set up) or "!" (error). Tapping it shows the status and syncs now.
 - Help: the ? button in the top bar opens a dialog. Its content is the `<template id="help">` in `index.html`; keep it in step with the gestures.
 
 ### Authentication

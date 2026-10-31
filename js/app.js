@@ -1,17 +1,17 @@
 import { load, save } from './store.js';
 import { SyncedDoc, Syncer } from './sync.js';
-import { parseList, serializeList, emptyList, mergeList, parseSections, serializeSections, emptySections, mergeSections } from './markdown.js';
+import { parseList, serializeList, emptyList, mergeList3, parseSections, serializeSections, emptySections, mergeSections3 } from './markdown.js';
 import { initKanji } from './kanji.js';
 import { initCorrections } from './corrections.js';
 import { initSettings } from './settings.js';
-import { notify, menu, showHelp } from './ui.js';
+import { notify, showHelp } from './ui.js';
 
 const kanjiDoc = new SyncedDoc('kanji', {
-  urlKey: 'forgottenUrl', empty: emptyList, parse: parseList, serialize: serializeList, merge: mergeList,
+  urlKey: 'forgottenUrl', empty: emptyList, parse: parseList, serialize: serializeList, merge3: mergeList3,
   count: (d) => d.items.length,
 });
 const correctionsDoc = new SyncedDoc('corrections', {
-  urlKey: 'correctionsUrl', empty: emptySections, parse: parseSections, serialize: serializeSections, merge: mergeSections,
+  urlKey: 'correctionsUrl', empty: emptySections, parse: parseSections, serialize: serializeSections, merge3: mergeSections3,
   count: (d) => d.corrections.length + d.maybe.length + d.done.length,
 });
 
@@ -30,11 +30,6 @@ const icon = (state) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${
 let statusLabel = '';
 const syncer = new Syncer([kanjiDoc, correctionsDoc], {
   notify,
-  askConflict: (file) => menu(`${file} has been changed on GitHub, and there are also changes on this device that haven't been pushed. Which version do you want to keep?`, [
-    ["Use GitHub's version (discard this device's changes)", 'remote'],
-    ["Keep this device's version (overwrite GitHub)", 'local'],
-    ['Decide later', null],
-  ]),
   onStatus(state, label) {
     statusBtn.innerHTML = icon(state);
     statusBtn.className = `icon-btn ${state}`;
@@ -44,7 +39,7 @@ const syncer = new Syncer([kanjiDoc, correctionsDoc], {
 });
 statusBtn.addEventListener('click', () => {
   notify(statusLabel);
-  syncer.sync({ manual: true });
+  syncer.sync();
 });
 document.getElementById('help-btn').addEventListener('click', () => showHelp(document.getElementById('help')));
 

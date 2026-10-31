@@ -48,7 +48,7 @@ The token is stored only on the device. A token is needed because GitHub doesn't
 - Every change is saved on the device immediately, so nothing is lost if you switch away or the app is killed.
 - Changes are pushed to GitHub, one commit per push, when you leave the app, a minute after your last edit, or when you tap the sync icon in the top bar. The app pulls from GitHub when it's opened or brought back to the front.
 - Sync icon: a cloud with a tick (synced), with an arrow (changes waiting to be pushed; it pulses while syncing), crossed out (offline or not set up) or with "!" (needs attention; tap it).
-- You can edit the files on GitHub too, e.g. to add a batch of entries. Open the app or tap the cloud before changing anything in the app, and it takes GitHub's version. If both have changed, the app asks whether to use GitHub's version, keep the device's version, or decide later.
+- You can use Daruma on several devices (e.g. a phone and a laptop browser) and edit the files on GitHub too. Enter the settings on each device. Each copy picks up the latest version when it's opened, comes back to the front, or every few minutes while it's open. If a device has unpushed changes and the file changed elsewhere too, the two are merged item by item: additions, edits, moves and items marked done from both sides are kept.
 
 The files look like this:
 
@@ -83,6 +83,12 @@ $ python3 -m http.server 8000
 
 Then open http://localhost:8000/. Service workers work on `localhost` without HTTPS.
 
+The sync merge logic has unit tests (no dependencies; Node 20 or later):
+
+```
+$ node --test
+```
+
 Layout:
 
 | Path | Purpose |
@@ -91,6 +97,7 @@ Layout:
 | `js/app.js` | Wiring: pages, tabs, sync indicator |
 | `js/kanji.js`, `js/corrections.js` | The two activities |
 | `js/sync.js` | Local-first documents and GitHub sync |
+| `js/merge.js`, `test/` | Three-way merge of list items, and its tests |
 | `js/github.js` | Minimal GitHub Contents API client |
 | `js/markdown.js` | Markdown ⇄ data conversion |
 | `js/settings.js`, `js/store.js`, `js/ui.js` | Settings page, localStorage, shared UI helpers |

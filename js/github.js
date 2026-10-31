@@ -56,6 +56,14 @@ export async function getFile(loc, token) {
   return { sha: j.sha, text: decodeBase64(j.content) };
 }
 
+// The content of a blob by sha (any version of a file that was ever pushed),
+// or null if it can't be found.
+export async function getBlob(loc, token, sha) {
+  const r = await request(`${repoUrl(loc)}/git/blobs/${sha}`, { headers: headers(token), allow404: true });
+  if (r.status === 404) return null;
+  return decodeBase64((await r.json()).content);
+}
+
 // Creates a commit; `sha` must be the current blob sha (null to create the
 // file). GitHub rejects the write if the file has changed since. Returns the new sha.
 export async function putFile(loc, token, text, sha, message, { keepalive = false } = {}) {

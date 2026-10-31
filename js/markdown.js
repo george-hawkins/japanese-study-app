@@ -1,3 +1,5 @@
+import { merge3 } from './merge.js';
+
 // Conversion between the Markdown files on GitHub and the app's data.
 
 const BULLET = /^\s*[*-]\s+(.*)$/;
@@ -23,10 +25,8 @@ export function serializeList(doc) {
   return [doc.header, '', ...items].join('\n') + '\n';
 }
 
-export function mergeList(local, remote) {
-  const seen = new Set(local.items);
-  return { header: remote.header, items: [...local.items, ...remote.items.filter((t) => !seen.has(t))] };
-}
+// Three-way merge (see merge.js); the header can only be changed on GitHub.
+export const mergeList3 = (base, local, remote) => ({ header: remote.header, ...merge3(base, local, remote, ['items']) });
 
 // corrections.md: "## Corrections", "## Maybe" and "## Done" bullet lists. Any
 // text before the first section, and any unknown sections, are kept verbatim.
@@ -75,9 +75,10 @@ export function serializeSections(doc) {
   return parts.join('\n\n') + '\n';
 }
 
-export function mergeSections(local, remote) {
-  const seen = new Set(SECTIONS.flatMap(([key]) => local[key]));
-  const doc = { preamble: remote.preamble || local.preamble, extra: remote.extra };
-  for (const [key] of SECTIONS) doc[key] = [...local[key], ...remote[key].filter((t) => !seen.has(t))];
-  return doc;
-}
+// Three-way merge (see merge.js); the preamble and any unknown sections can
+// only be changed on GitHub.
+export const mergeSections3 = (base, local, remote) => ({
+  preamble: remote.preamble,
+  extra: remote.extra,
+  ...merge3(base, local, remote, SECTIONS.map(([key]) => key)),
+});
