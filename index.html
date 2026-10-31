@@ -22,6 +22,9 @@
       <button class="tab" data-page="corrections">Corrections</button>
     </nav>
     <button id="sync-status" class="icon-btn" aria-label="Sync status"></button>
+    <button id="help-btn" class="icon-btn" aria-label="Help">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.7 9.6a2.4 2.4 0 0 1 4.6.9c0 1.6-2.3 2-2.3 3.5M12 16.6v.01"/></svg>
+    </button>
     <button id="settings-btn" class="icon-btn tab" data-page="settings" aria-label="Settings">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
     </button>
@@ -89,6 +92,29 @@
       </form>
     </section>
   </main>
+
+  <template id="help">
+    <h2>Kanji</h2>
+    <ul>
+      <li>Type a word and press Enter to add it to the top of the list.</li>
+      <li>Long-press a word to edit or delete it.</li>
+      <li>Draw with your finger. <b>Clear</b> wipes the pad.</li>
+      <li>The arrow at the top of the pad hides or shows the list.</li>
+    </ul>
+    <h2>Corrections</h2>
+    <ul>
+      <li>Type in the top line of a list and press Enter to add an item.</li>
+      <li>Tap an item to edit it. Enter starts a new item below it; an item you empty is removed.</li>
+      <li>Swipe an item left or right to mark it done. <b>Undo</b> appears for a few seconds.</li>
+      <li>Long-press an item to move it to the other list, mark it done or delete it.</li>
+    </ul>
+    <h2>Saving and sync</h2>
+    <ul>
+      <li>Everything is saved on this phone as you type. It's pushed to GitHub when you leave the app, a minute after your last change, or when you tap the cloud.</li>
+      <li>Cloud with a tick: everything is on GitHub. With an arrow: changes are waiting to be pushed. Crossed out: offline, or sync isn't set up yet. With <b>!</b>: something needs your attention; tap it.</li>
+      <li>Changed the files on GitHub? Open the app, or tap the cloud, before changing anything here and it picks up GitHub's version. If both have changed, it asks which to keep.</li>
+    </ul>
+  </template>
 
   <div id="snackbar" hidden><span id="snackbar-text"></span><button id="snackbar-action"></button></div>
   <dialog id="dialog"></dialog>

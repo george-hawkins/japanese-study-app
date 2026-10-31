@@ -37,13 +37,14 @@ Daruma (the repo is `japanese-study-app`) is a small installable web app (PWA) f
 - **Local first.** Every change is written to localStorage immediately. This is what guarantees nothing is lost, and it costs nothing. Text being typed in the "add" boxes is saved as a draft too. The service worker only caches the app's code, not data.
 - All `*.github.io` project sites share one origin, so all keys are prefixed `daruma:`.
 - **GitHub is a sync target.** Pushes (one commit each) happen when the app goes to the background, 60 s after the last edit, or when the sync indicator is tapped. Pulls happen on open and on returning to the app (if more than 30 s since the last one). An interrupted push leaves the doc "dirty" and is retried next time.
-- **All modifications are expected to happen in the app** (George's decision: editing outside the app is too much of an edge case to be worth the complexity). So the conflict rules are simple:
-  - No local changes, file changed on GitHub: adopt GitHub's version.
-  - Local changes, file changed on GitHub: the app's version is pushed over it and a notice is shown. The overwritten version remains in the repo history.
+- **Edits are almost always made in the app.** Occasionally George edits a file on GitHub, e.g. to seed initial entries. He then syncs (or opens the app) before changing anything locally. Conflict rules:
+  - No local changes, file changed on GitHub (the safe case): take GitHub's version silently.
+  - Local changes, file changed on GitHub (a conflict): ask *Use GitHub's version* / *Keep this device's version* / *Decide later*. "Decide later" records the remote sha in `state.conflict`. Nothing is pushed (the quick push skips the doc, and the stale sha would be rejected anyway). The cloud shows "!", and automatic syncs don't ask again until the remote changes again; a manual sync (tapping the cloud, or *Sync now*) asks again.
   - First sync with a (new) file URL while local data exists: the two are combined (union of items), so setting up sync never throws anything away.
 - `PUT` sends the last known blob `sha`, so GitHub rejects blind overwrites. If that happens, the error shows on the sync indicator and the next sync resolves it.
 - Settings → *Sync details* shows, per document, the item count, whether there are unpushed changes, the last known GitHub blob sha and the result of the last sync. A missing file is created on the first sync, even when there is nothing new to push.
-- Sync indicator states: ✓ synced, • pending, ↻ syncing, ⚡ offline, ⚠ error, ⊘ not set up. Tapping it shows the status and syncs now.
+- Sync indicator: a line-icon cloud with a tick (synced), an up arrow (pending; pulsing while syncing), a slash (offline / not set up) or "!" (error or unresolved conflict). Tapping it shows the status and runs a manual sync.
+- Help: the ? button in the top bar opens a dialog. Its content is the `<template id="help">` in `index.html`; keep it in step with the gestures.
 
 ### Authentication
 - A **fine-grained personal access token**, pasted into Settings. It is limited to the notes repo, with *Contents: Read and write* permission only.

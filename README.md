@@ -16,6 +16,8 @@ The icon is a daruma doll with only one eye painted in. Traditionally you paint 
 
 ## Activities
 
+The ? button in the top bar shows a summary of the gestures below.
+
 **Kanji**: a list of English keywords for kanji you've forgotten, next to a scratch pad for writing kanji with your finger.
 
 - Type a keyword in the box at the top and press Enter; new entries go at the top.
@@ -45,8 +47,8 @@ The token is stored only on the device. A token is needed because GitHub doesn't
 
 - Every change is saved on the device immediately, so nothing is lost if you switch away or the app is killed.
 - Changes are pushed to GitHub, one commit per push, when you leave the app, a minute after your last edit, or when you tap the sync icon in the top bar. The app pulls from GitHub when it's opened or brought back to the front.
-- Sync icon: ✓ synced, • changes not yet pushed, ↻ syncing, ⚡ offline, ⚠ error (tap for details), ⊘ not set up.
-- The files are meant to be edited through the app. If a file was changed on GitHub while the app also has unpushed changes, the app's version wins and a notice is shown. The other version is still in the repo's history.
+- Sync icon: a cloud with a tick (synced), with an arrow (changes waiting to be pushed; it pulses while syncing), crossed out (offline or not set up) or with "!" (needs attention; tap it).
+- You can edit the files on GitHub too, e.g. to add a batch of entries. Open the app or tap the cloud before changing anything in the app, and it takes GitHub's version. If both have changed, the app asks whether to use GitHub's version, keep the device's version, or decide later.
 
 The files look like this:
 

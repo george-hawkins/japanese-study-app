@@ -3,9 +3,10 @@
 // Every change is written to localStorage immediately; that alone guarantees
 // nothing is lost. Pushing to GitHub (one commit per push) happens when the app
 // is backgrounded, after PUSH_DELAY without further edits, or on request.
-// All edits are expected to happen in the app: if the file on GitHub has
-// changed while there are unpushed local edits, the local version wins (the
-// overwritten version remains in the repo's history) and a notice is shown.
+// If the file on GitHub has changed and there are no unpushed local edits,
+// GitHub's version is taken. If both have changed, the user is asked which to
+// keep (or to decide later, in which case nothing is pushed and they're only
+// asked again when they sync by hand).
 
 import { load, save } from './store.js';
 import { parseGitHubUrl, getFile, putFile } from './github.js';
@@ -37,10 +38,10 @@ export class SyncedDoc {
 }
 
 export class Syncer {
-  constructor(docs, { onStatus, notify }) {
-    Object.assign(this, { docs, onStatus, notify });
+  constructor(docs, { onStatus, notify, askConflict }) {
+    Object.assign(this, { docs, onStatus, notify, askConflict });
     this.running = null;
-    this.again = false;
+    this.again = null; // options for a sync requested while one was running
     this.error = null;
     this.lastPull = 0;
     this.timer = null;
@@ -67,19 +68,21 @@ export class Syncer {
 
   // quick: push dirty docs only, without first checking GitHub (used when the
   // app is being backgrounded and may be frozen or killed at any moment).
-  sync({ quick = false } = {}) {
+  // manual: the user asked for this sync, so ask again about deferred conflicts.
+  sync({ quick = false, manual = false } = {}) {
     clearTimeout(this.timer);
     if (this.running) {
-      this.again = true;
+      this.again = { manual: manual || !!this.again?.manual };
       return this.running;
     }
     this.running = (async () => {
-      do {
-        this.again = false;
+      let opts = { quick, manual };
+      while (opts) {
+        this.again = null;
         this.report();
-        await this.syncAll(quick);
-        quick = false;
-      } while (this.again);
+        await this.syncAll(opts);
+        opts = this.again;
+      }
     })().finally(() => {
       this.running = null;
       this.report();
@@ -88,13 +91,13 @@ export class Syncer {
     return this.running;
   }
 
-  async syncAll(quick) {
+  async syncAll({ quick, manual }) {
     const settings = getSettings();
     const errors = [];
     for (const d of this.docs) {
-      if (quick && !d.state.dirty) continue;
+      if (quick && (!d.state.dirty || d.state.conflict)) continue;
       try {
-        const text = await this.syncDoc(d, settings, quick);
+        const text = await this.syncDoc(d, settings, quick, manual);
         this.results[d.name] = { time: new Date(), text };
       } catch (e) {
         errors.push(`${d.name}: ${e.message}`);
@@ -109,7 +112,7 @@ export class Syncer {
     }
   }
 
-  async syncDoc(doc, settings, quick) {
+  async syncDoc(doc, settings, quick, manual) {
     const url = settings[doc.urlKey];
     const loc = parseGitHubUrl(url);
     if (!loc || !settings.token) return 'not configured';
@@ -140,11 +143,34 @@ export class Syncer {
         doc.persist();
       } else if (remoteSha !== st.sha) {
         if (!st.dirty && remote) {
+          // The safe case: changed on GitHub only.
           st.data = doc.parse(remote.text);
+          st.sha = remoteSha;
+          doc.persist();
           doc.emit('remote');
-        } else if (st.dirty && remote) {
-          this.notify(`${file} was changed outside Daruma; keeping the app's version (the other is in the GitHub history)`);
+          return `took GitHub's version of ${file}`;
         }
+        if (st.dirty && remote) {
+          // Changed on both sides.
+          if (st.conflict === remoteSha && !manual) return 'conflict: waiting for you to choose (tap the cloud)';
+          const choice = await this.askConflict(file);
+          if (choice === 'remote') {
+            st.data = doc.parse(remote.text);
+            st.dirty = false;
+            st.conflict = null;
+            st.sha = remoteSha;
+            doc.persist();
+            doc.emit('remote');
+            return `took GitHub's version of ${file}`;
+          }
+          if (choice !== 'local') {
+            st.conflict = remoteSha;
+            doc.persist();
+            return 'conflict: waiting for you to choose (tap the cloud)';
+          }
+        }
+        // Keeping the local version (or the file was deleted on GitHub).
+        st.conflict = null;
         st.sha = remoteSha;
         doc.persist();
       }
@@ -157,6 +183,7 @@ export class Syncer {
     const sha = await putFile(loc, settings.token, doc.serialize(st.data), st.sha, `Update ${file} from Daruma`, { keepalive: quick });
     st.sha = sha;
     if (st.rev === rev) st.dirty = false; // unless edited during the push
+    st.conflict = null;
     doc.persist();
     return `${missing ? 'created' : 'pushed'} ${file} (${sha.slice(0, 7)})`;
   }
@@ -180,9 +207,11 @@ export class Syncer {
     const s = getSettings();
     const configured = s.token && this.docs.some((d) => parseGitHubUrl(s[d.urlKey]));
     const dirty = this.docs.some((d) => d.state.dirty);
+    const conflicts = this.docs.filter((d) => d.state.conflict).map((d) => d.state.syncedUrl.split('/').pop());
     let state, label;
     if (!configured) [state, label] = ['off', 'Sync is not set up yet (see settings)'];
     else if (this.running) [state, label] = ['syncing', 'Syncing…'];
+    else if (conflicts.length) [state, label] = ['error', `${conflicts.join(' and ')} changed both here and on GitHub. Tap the cloud to choose which to keep.`];
     else if (this.error) [state, label] = ['error', `Sync failed: ${this.error}`];
     else if (dirty && !navigator.onLine) [state, label] = ['offline', 'Offline; changes are saved on this device and will be pushed later'];
     else if (dirty) [state, label] = ['pending', 'Changes saved on this device, not yet pushed to GitHub'];

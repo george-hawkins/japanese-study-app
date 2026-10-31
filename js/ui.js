@@ -25,7 +25,7 @@ export function notify(message, action = null, ms = 5000) {
 
 const dialog = () => document.getElementById('dialog');
 
-function openDialog(build) {
+function openDialog(build, className = '') {
   return new Promise((resolve) => {
     const dlg = dialog();
     let value = null;
@@ -34,6 +34,7 @@ function openDialog(build) {
       dlg.close();
     };
     dlg.replaceChildren();
+    dlg.className = className;
     build(dlg, done);
     dlg.onclose = () => resolve(value);
     // Close on a backdrop tap, but only one that started on the backdrop: the
@@ -42,6 +43,7 @@ function openDialog(build) {
     dlg.onpointerdown = (e) => (downOnBackdrop = e.target === dlg);
     dlg.onclick = (e) => e.target === dlg && downOnBackdrop && dlg.close();
     dlg.showModal();
+    dlg.scrollTop = 0; // showModal focuses the first button, which may be at the bottom
   });
 }
 
@@ -55,6 +57,19 @@ export function menu(title, items) {
       dlg.append(b);
     }
   });
+}
+
+// Shows the contents of a <template> in the dialog, with a Close button.
+export function showHelp(template) {
+  return openDialog((dlg, done) => {
+    const body = el('div', 'help');
+    body.append(template.content.cloneNode(true));
+    const row = el('div', 'dlg-row');
+    const close = el('button', 'dlg-btn', 'Close');
+    close.onclick = () => done(null);
+    row.append(close);
+    dlg.append(body, row);
+  }, 'wide');
 }
 
 export function promptText(title, initial) {

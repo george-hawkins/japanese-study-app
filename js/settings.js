@@ -16,7 +16,7 @@ export function initSettings(syncer) {
   $('set-version').textContent = `Daruma version ${VERSION}`;
   $('set-sync').addEventListener('click', async () => {
     details.textContent = 'Syncing…';
-    await syncer.sync();
+    await syncer.sync({ manual: true });
     showDetails();
   });
 
@@ -30,7 +30,7 @@ export function initSettings(syncer) {
       test('Corrections', s.correctionsUrl, s.token),
     ]);
     result.textContent = lines.join('\n');
-    await syncer.sync();
+    await syncer.sync({ manual: true });
     showDetails();
   });
 
