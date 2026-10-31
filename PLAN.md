@@ -120,7 +120,11 @@ Daruma (the repo is `japanese-study-app`) is a small installable web app (PWA) f
 
 ### Icon
 - A daruma doll with one eye painted in. Traditionally you paint one eye when you set a goal and the other when you achieve it. The belly has 学 in gold, on a cream background (`#f3ead7`, also the splash background). Theme colour `#c8102e`.
-- Source: `design/icon.svg`. PNGs were rendered with headless Chrome: the `maskable` version scales the artwork to 86 % to sit inside the safe zone. The 学 relies on a Japanese font at render time (Hiragino on macOS). To regenerate: `design/render-icons.sh`.
+- Source: `design/icon.svg`, with a transparent background. `design/render-icons.sh` renders the PNGs with headless Chrome:
+  - `icon-192/512.png` (`any`): transparent.
+  - `favicon.png` (96 px): transparent, cropped to the daruma so it's legible in a browser tab.
+  - `maskable-512.png` and `apple-touch-icon.png`: cream background (`#f3ead7`), because Android crops maskable icons to the launcher shape (they must be opaque, edge to edge) and iOS fills transparency with black. The maskable artwork is scaled to 86 % to sit inside the safe zone.
+  - The 学 relies on a Japanese font at render time (Hiragino on macOS).
 
 ## Setup
 
