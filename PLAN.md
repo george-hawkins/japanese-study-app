@@ -79,7 +79,7 @@ Daruma (the repo is `japanese-study-app`) is a small installable web app (PWA) f
 - Navigation stays at the top (not bottom navigation) so it isn't hit while drawing. The last page shown is remembered.
 
 ### Forgotten kanji
-- Left third: an add box at the top (Enter adds the entry at the top and closes the keyboard), with the list below it. Long-press an entry → Edit / Delete.
+- Left third: an add box at the top (Enter adds the entry at the top; focus stays in the box for the next word), with the list below it. Long-press an entry → Edit / Delete.
 - ◀/▶ button hides or shows the list (remembered). The scroll position is saved and restored.
 - Canvas: Pointer Events, `touch-action: none`, high-DPI, coalesced events plus quadratic smoothing. Only the first finger draws.
 - Brush diameter = `BRUSH` (0.035) × the canvas's shorter side. The reference image is ~4.9 % of the kanji's size, and this gives ~4 %.

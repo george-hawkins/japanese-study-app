@@ -53,7 +53,7 @@ export function initKanji(doc) {
     }
     input.value = '';
     save('draft:kanji', '');
-    input.blur();
+    input.focus(); // ready for the next word
   });
 
   list.addEventListener('scroll', debounce(() => save('scroll:kanji', list.scrollTop), 150), { passive: true });
