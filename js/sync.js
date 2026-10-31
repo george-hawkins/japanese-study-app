@@ -100,7 +100,9 @@ export class Syncer {
     }
     if (!quick) {
       this.lastPull = Date.now();
-      this.error = errors.join('\n') || null;
+      const error = errors.join('\n') || null;
+      if (error && error !== this.error) this.notify(`Sync failed: ${error}`, null, 8000);
+      this.error = error;
     }
   }
 

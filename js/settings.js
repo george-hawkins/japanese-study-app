@@ -1,5 +1,5 @@
 import { load, save } from './store.js';
-import { parseGitHubUrl, getRepo, getFile } from './github.js';
+import { parseGitHubUrl, getRepo, getFile, branchExists } from './github.js';
 
 const DEFAULTS = { token: '', forgottenUrl: '', correctionsUrl: '' };
 
@@ -39,7 +39,12 @@ async function test(label, url, token) {
   if (!loc) return `${label}: ✗ expected https://github.com/OWNER/REPO/blob/BRANCH/PATH.md`;
   if (!token) return `${label}: ✗ no token`;
   try {
-    if (!(await getRepo(loc, token))) return `${label}: ✗ repository ${loc.owner}/${loc.repo} not found, or the token can't access it`;
+    const repo = await getRepo(loc, token);
+    if (!repo) return `${label}: ✗ repository ${loc.owner}/${loc.repo} not found, or the token can't access it`;
+    if (!(await branchExists(loc, token))) {
+      if (repo.default_branch !== loc.branch) return `${label}: ✗ branch "${loc.branch}" doesn't exist (the default branch is "${repo.default_branch}")`;
+      return `${label}: ✓ repository is empty; the first push will create ${loc.path}`;
+    }
     const file = await getFile(loc, token);
     return `${label}: ✓ ${file ? 'file found' : "file doesn't exist yet; it will be created"}`;
   } catch (e) {

@@ -20,14 +20,16 @@ const headers = (token) => ({ Authorization: `Bearer ${token}`, Accept: 'applica
 const repoUrl = (loc) => `${API}/repos/${loc.owner}/${loc.repo}`;
 const contentsUrl = (loc) => `${repoUrl(loc)}/contents/${loc.path.split('/').map(encodeURIComponent).join('/')}`;
 
-async function request(url, options) {
+// A 404 is returned (not thrown) when `allow404` is set, since it then means
+// "doesn't exist"; any other failure throws with GitHub's message.
+async function request(url, { allow404 = false, ...options } = {}) {
   let r;
   try {
     r = await fetch(url, { cache: 'no-store', ...options });
   } catch (e) {
     throw new GitHubError(0, navigator.onLine ? `network error (${e.message})` : 'offline');
   }
-  if (r.ok || r.status === 404) return r;
+  if (r.ok || (allow404 && r.status === 404)) return r;
   let message = `${r.status} ${r.statusText}`;
   try {
     const j = await r.json();
@@ -37,13 +39,18 @@ async function request(url, options) {
 }
 
 export async function getRepo(loc, token) {
-  const r = await request(repoUrl(loc), { headers: headers(token) });
+  const r = await request(repoUrl(loc), { headers: headers(token), allow404: true });
   return r.status === 404 ? null : r.json();
+}
+
+export async function branchExists(loc, token) {
+  const r = await request(`${repoUrl(loc)}/branches/${encodeURIComponent(loc.branch)}`, { headers: headers(token), allow404: true });
+  return r.status !== 404;
 }
 
 // Returns { sha, text }, or null if the file doesn't exist.
 export async function getFile(loc, token) {
-  const r = await request(`${contentsUrl(loc)}?ref=${encodeURIComponent(loc.branch)}`, { headers: headers(token) });
+  const r = await request(`${contentsUrl(loc)}?ref=${encodeURIComponent(loc.branch)}`, { headers: headers(token), allow404: true });
   if (r.status === 404) return null;
   const j = await r.json();
   return { sha: j.sha, text: decodeBase64(j.content) };
@@ -52,7 +59,15 @@ export async function getFile(loc, token) {
 // Creates a commit; `sha` must be the current blob sha (null to create the
 // file). GitHub rejects the write if the file has changed since. Returns the new sha.
 export async function putFile(loc, token, text, sha, message, { keepalive = false } = {}) {
-  const body = JSON.stringify({ message, content: encodeBase64(text), branch: loc.branch, ...(sha ? { sha } : {}) });
+  let branch = loc.branch;
+  if (!sha) {
+    // Creating a file. In a repo with no commits yet, naming the branch fails
+    // (it doesn't exist until the first commit), so leave it out when it's the
+    // default branch, which is where GitHub then puts the commit anyway.
+    const repo = await getRepo(loc, token);
+    if (repo?.default_branch === branch) branch = undefined;
+  }
+  const body = JSON.stringify({ message, content: encodeBase64(text), ...(branch ? { branch } : {}), ...(sha ? { sha } : {}) });
   const options = { method: 'PUT', headers: { ...headers(token), 'Content-Type': 'application/json' }, body };
   let r;
   try {
@@ -63,7 +78,6 @@ export async function putFile(loc, token, text, sha, message, { keepalive = fals
     if (!keepalive || e.status !== 0) throw e;
     r = await request(contentsUrl(loc), options);
   }
-  if (r.status === 404) throw new GitHubError(404, 'repository not found, or the token has no access to it');
   return (await r.json()).content.sha;
 }
 
