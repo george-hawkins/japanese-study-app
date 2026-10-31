@@ -1,4 +1,5 @@
 import { load, save } from './store.js';
+import { VERSION } from './version.js';
 import { parseGitHubUrl, getRepo, getFile, branchExists } from './github.js';
 
 const DEFAULTS = { token: '', forgottenUrl: '', correctionsUrl: '' };
@@ -10,6 +11,14 @@ export function initSettings(syncer) {
   const form = $('settings-form');
   const fields = { forgottenUrl: $('set-forgotten'), correctionsUrl: $('set-corrections'), token: $('set-token') };
   const result = $('set-result');
+  const details = $('set-details');
+  const showDetails = () => (details.textContent = syncer.details());
+  $('set-version').textContent = `Daruma version ${VERSION}`;
+  $('set-sync').addEventListener('click', async () => {
+    details.textContent = 'Syncing…';
+    await syncer.sync();
+    showDetails();
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -21,7 +30,8 @@ export function initSettings(syncer) {
       test('Corrections', s.correctionsUrl, s.token),
     ]);
     result.textContent = lines.join('\n');
-    syncer.sync();
+    await syncer.sync();
+    showDetails();
   });
 
   return {
@@ -29,6 +39,7 @@ export function initSettings(syncer) {
       const s = getSettings();
       for (const [k, el] of Object.entries(fields)) el.value = s[k];
       result.textContent = '';
+      showDetails();
     },
   };
 }

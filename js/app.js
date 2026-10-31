@@ -8,9 +8,11 @@ import { notify } from './ui.js';
 
 const kanjiDoc = new SyncedDoc('kanji', {
   urlKey: 'forgottenUrl', empty: emptyList, parse: parseList, serialize: serializeList, merge: mergeList,
+  count: (d) => d.items.length,
 });
 const correctionsDoc = new SyncedDoc('corrections', {
   urlKey: 'correctionsUrl', empty: emptySections, parse: parseSections, serialize: serializeSections, merge: mergeSections,
+  count: (d) => d.corrections.length + d.maybe.length + d.done.length,
 });
 
 const statusBtn = document.getElementById('sync-status');

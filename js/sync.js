@@ -15,8 +15,8 @@ const PUSH_DELAY = 60_000;
 const PULL_INTERVAL = 30_000;
 
 export class SyncedDoc {
-  constructor(name, { urlKey, empty, parse, serialize, merge }) {
-    Object.assign(this, { name, urlKey, parse, serialize, merge });
+  constructor(name, { urlKey, empty, parse, serialize, merge, count }) {
+    Object.assign(this, { name, urlKey, parse, serialize, merge, count });
     this.state = load(`doc:${name}`, null) ?? { data: empty(), dirty: false, sha: null, syncedUrl: null, rev: 0 };
     this.listeners = [];
   }
@@ -44,6 +44,7 @@ export class Syncer {
     this.error = null;
     this.lastPull = 0;
     this.timer = null;
+    this.results = {}; // per doc: { time, text } describing the last sync
     for (const d of docs) {
       d.on((kind) => {
         if (kind !== 'local') return;
@@ -93,9 +94,11 @@ export class Syncer {
     for (const d of this.docs) {
       if (quick && !d.state.dirty) continue;
       try {
-        await this.syncDoc(d, settings, quick);
+        const text = await this.syncDoc(d, settings, quick);
+        this.results[d.name] = { time: new Date(), text };
       } catch (e) {
         errors.push(`${d.name}: ${e.message}`);
+        this.results[d.name] = { time: new Date(), text: `failed: ${e.message}` };
       }
     }
     if (!quick) {
@@ -109,15 +112,17 @@ export class Syncer {
   async syncDoc(doc, settings, quick) {
     const url = settings[doc.urlKey];
     const loc = parseGitHubUrl(url);
-    if (!loc || !settings.token) return;
+    if (!loc || !settings.token) return 'not configured';
     const st = doc.state;
+    let missing = false; // file doesn't exist on GitHub yet
     const file = loc.path.split('/').pop();
 
     if (quick) {
-      if (st.syncedUrl !== url) return;
+      if (st.syncedUrl !== url) return 'skipped (first sync not done yet)';
     } else {
       const remote = await getFile(loc, settings.token);
       const remoteSha = remote?.sha ?? null;
+      missing = !remote;
       if (st.syncedUrl !== url) {
         // First sync with this file: combine rather than overwrite anything.
         if (remote) {
@@ -145,12 +150,30 @@ export class Syncer {
       }
     }
 
-    if (!st.dirty) return;
+    // Create missing files even when there's nothing new, so a working setup
+    // is visible on GitHub straight away.
+    if (!st.dirty && !missing) return 'up to date';
     const rev = st.rev;
     const sha = await putFile(loc, settings.token, doc.serialize(st.data), st.sha, `Update ${file} from Daruma`, { keepalive: quick });
     st.sha = sha;
     if (st.rev === rev) st.dirty = false; // unless edited during the push
     doc.persist();
+    return `${missing ? 'created' : 'pushed'} ${file} (${sha.slice(0, 7)})`;
+  }
+
+  // Human-readable state of each doc, for the settings page.
+  details() {
+    const s = getSettings();
+    return this.docs.map((d) => {
+      const st = d.state, r = this.results[d.name];
+      const count = d.count(st.data);
+      return [
+        `${d.name}: ${count} item${count === 1 ? '' : 's'} on this device, ${st.dirty ? 'with changes not yet pushed' : 'no unpushed changes'}`,
+        `  file: ${s[d.urlKey] || '(not set)'}`,
+        `  last known GitHub version: ${st.sha ? st.sha.slice(0, 7) : 'none'}`,
+        `  last sync: ${r ? `${r.time.toLocaleTimeString()}: ${r.text}` : 'not since the app was opened'}`,
+      ].join('\n');
+    }).join('\n\n');
   }
 
   report() {

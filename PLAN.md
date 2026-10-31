@@ -30,6 +30,7 @@ Daruma (the repo is `japanese-study-app`) is a small installable web app (PWA) f
 
 ### Stack
 - Plain HTML, CSS and JavaScript ES modules. No framework and **no build step**: the repo *is* the site.
+- **Version:** `js/version.js` holds `VERSION`, shown in Settings → About. Bump it in every commit that changes the app, so the running version can be checked on the phone.
 - Files: `index.html`, `styles.css`, `manifest.webmanifest`, `sw.js`, `js/` (`app.js` wiring, `store.js` localStorage, `markdown.js` parse/serialize, `github.js` API client, `sync.js` sync logic, `settings.js`, `ui.js` snackbar/dialogs/gestures, `kanji.js`, `corrections.js`), `icons/`, `design/icon.svg` (icon source).
 
 ### Persistence and sync
@@ -41,6 +42,7 @@ Daruma (the repo is `japanese-study-app`) is a small installable web app (PWA) f
   - Local changes, file changed on GitHub: the app's version is pushed over it and a notice is shown. The overwritten version remains in the repo history.
   - First sync with a (new) file URL while local data exists: the two are combined (union of items), so setting up sync never throws anything away.
 - `PUT` sends the last known blob `sha`, so GitHub rejects blind overwrites. If that happens, the error shows on the sync indicator and the next sync resolves it.
+- Settings → *Sync details* shows, per document, the item count, whether there are unpushed changes, the last known GitHub blob sha and the result of the last sync. A missing file is created on the first sync, even when there is nothing new to push.
 - Sync indicator states: ✓ synced, • pending, ↻ syncing, ⚡ offline, ⚠ error, ⊘ not set up. Tapping it shows the status and syncs now.
 
 ### Authentication

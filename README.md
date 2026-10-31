@@ -31,7 +31,7 @@ The icon is a daruma doll with only one eye painted in. Traditionally you paint 
    - *Repository access*: *Only select repositories* → the data repo.
    - *Permissions → Contents*: *Read and write*. Nothing else is needed.
 3. **Open the app in Chrome on your phone** and choose ⋮ → **Add to home screen → Install**. On iOS, use Safari's Share → **Add to Home Screen**.
-4. **In ⚙ Settings**, enter the file URLs, e.g. `https://github.com/george-hawkins/daruma-filestore/blob/main/forgotten.md` and `…/blob/main/corrections.md`, and the token. Then tap **Save and test**.
+4. **In ⚙ Settings**, enter the file URLs, e.g. `https://github.com/george-hawkins/daruma-filestore/blob/master/forgotten.md` and `…/blob/master/corrections.md` (the branch must exist, or be the repo's default branch if the repo is still empty), and the token. Then tap **Save and test**.
 
 The token is stored only on the device. A token is needed because GitHub doesn't support signing in from a purely static site (it requires a server-side secret).
 
