@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#c8102e">
+  <title>Daruma</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Daruma">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header id="topbar">
+    <nav id="tabs">
+      <button class="tab" data-page="kanji">Kanji</button>
+      <button class="tab" data-page="corrections">Corrections</button>
+    </nav>
+    <button id="sync-status" class="icon-btn" aria-label="Sync status"></button>
+    <button id="settings-btn" class="icon-btn tab" data-page="settings" aria-label="Settings">⚙</button>
+  </header>
+
+  <main>
+    <section id="page-kanji" class="page">
+      <div id="kanji-side">
+        <form id="kanji-add-form" class="add-form">
+          <input id="kanji-add" type="text" placeholder="Forgotten…" enterkeyhint="done"
+                 autocomplete="off" autocapitalize="off" spellcheck="false">
+        </form>
+        <ul id="kanji-list" class="list"></ul>
+      </div>
+      <div id="kanji-pad">
+        <canvas id="kanji-canvas"></canvas>
+        <button id="kanji-toggle" class="pad-btn" aria-label="Hide or show list">◀</button>
+        <button id="kanji-clear" class="pad-btn">Clear</button>
+      </div>
+    </section>
+
+    <section id="page-corrections" class="page">
+      <div class="clist" id="clist-corrections" data-key="corrections">
+        <h2>Corrections</h2>
+        <form class="add-form">
+          <input type="text" placeholder="Add correction…" enterkeyhint="enter" autocomplete="off">
+        </form>
+        <ul class="list"></ul>
+      </div>
+      <div class="clist" id="clist-maybe" data-key="maybe">
+        <h2>Maybe</h2>
+        <form class="add-form">
+          <input type="text" placeholder="Add maybe…" enterkeyhint="enter" autocomplete="off">
+        </form>
+        <ul class="list"></ul>
+      </div>
+    </section>
+
+    <section id="page-settings" class="page">
+      <form id="settings-form" class="settings">
+        <h2>GitHub sync</h2>
+        <label>Forgotten kanji file
+          <input id="set-forgotten" type="url" placeholder="https://github.com/owner/repo/blob/main/forgotten.md" autocomplete="off">
+        </label>
+        <label>Corrections file
+          <input id="set-corrections" type="url" placeholder="https://github.com/owner/repo/blob/main/corrections.md" autocomplete="off">
+        </label>
+        <label>Access token
+          <input id="set-token" type="password" autocomplete="off" placeholder="github_pat_…">
+        </label>
+        <p class="hint">
+          Create a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained token</a>:
+          <em>Repository access → Only select repositories</em> (your notes repo) and
+          <em>Permissions → Contents → Read and write</em>. Nothing else is needed.
+        </p>
+        <button type="submit" class="primary">Save and test</button>
+        <div id="set-result"></div>
+        <h2>About</h2>
+        <p class="hint">Daruma keeps everything on this device first and pushes it to GitHub when you leave the app, after a short pause in editing, or when you tap the sync icon.</p>
+      </form>
+    </section>
+  </main>
+
+  <div id="snackbar" hidden><span id="snackbar-text"></span><button id="snackbar-action"></button></div>
+  <dialog id="dialog"></dialog>
+</body>
+</html>
