@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#f3ead7"/>
+  <ellipse cx="256" cy="458" rx="150" ry="16" fill="#000" opacity="0.12"/>
+  <path d="M256,70 C368,70 424,158 424,272 C424,384 356,452 256,452 C156,452 88,384 88,272 C88,158 144,70 256,70 Z" fill="#c8102e"/>
+  <ellipse cx="150" cy="190" rx="22" ry="60" transform="rotate(20 150 190)" fill="#fff" opacity="0.18"/>
+  <ellipse cx="256" cy="222" rx="112" ry="92" fill="#fffaf0"/>
+  <path d="M168,170 Q200,140 236,168" stroke="#111" stroke-width="13" fill="none" stroke-linecap="round"/>
+  <path d="M276,168 Q312,140 344,170" stroke="#111" stroke-width="13" fill="none" stroke-linecap="round"/>
+  <circle cx="208" cy="208" r="27" fill="#111"/>
+  <circle cx="199" cy="199" r="7" fill="#fff"/>
+  <circle cx="304" cy="208" r="27" fill="#fff" stroke="#bbb" stroke-width="3" stroke-dasharray="6 5"/>
+  <path d="M256,226 L249,244 L263,244" stroke="#111" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M252,258 C226,250 200,262 196,282 C194,292 204,294 208,286" stroke="#111" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M260,258 C286,250 312,262 316,282 C318,292 308,294 304,286" stroke="#111" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M244,284 Q256,294 268,284" stroke="#c8102e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <text x="256" y="408" font-family="Hiragino Mincho ProN, Hiragino Sans, serif" font-weight="bold" font-size="96" fill="#e8b84a" text-anchor="middle">学</text>
+</svg>
