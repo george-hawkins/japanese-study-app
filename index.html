@@ -22,39 +22,44 @@
       <button class="tab" data-page="corrections">Corrections</button>
     </nav>
     <button id="sync-status" class="icon-btn" aria-label="Sync status"></button>
-    <button id="settings-btn" class="icon-btn tab" data-page="settings" aria-label="Settings">⚙</button>
+    <button id="settings-btn" class="icon-btn tab" data-page="settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+    </button>
   </header>
 
   <main>
     <section id="page-kanji" class="page">
       <div id="kanji-side">
         <form id="kanji-add-form" class="add-form">
-          <input id="kanji-add" type="text" placeholder="Forgotten…" enterkeyhint="enter"
+          <input id="kanji-add" type="text" placeholder="Add word" enterkeyhint="enter"
                  autocomplete="off" autocapitalize="off" spellcheck="false">
         </form>
-        <ul id="kanji-list" class="list"></ul>
+        <ul id="kanji-list" class="list" data-empty="Words you forget go here"></ul>
       </div>
       <div id="kanji-pad">
+        <div id="kanji-guide" aria-hidden="true"></div>
         <canvas id="kanji-canvas"></canvas>
-        <button id="kanji-toggle" class="pad-btn" aria-label="Hide or show list">◀</button>
+        <button id="kanji-toggle" class="pad-btn" aria-label="Hide or show list">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
         <button id="kanji-clear" class="pad-btn">Clear</button>
       </div>
     </section>
 
     <section id="page-corrections" class="page">
       <div class="clist" id="clist-corrections" data-key="corrections">
-        <h2>Corrections</h2>
+        <h2>Corrections <span class="count"></span></h2>
         <form class="add-form">
-          <input type="text" placeholder="Add correction…" enterkeyhint="enter" autocomplete="off">
+          <input type="text" placeholder="Add a correction" enterkeyhint="enter" autocomplete="off">
         </form>
-        <ul class="list"></ul>
+        <ul class="list" data-empty="Nothing to correct"></ul>
       </div>
       <div class="clist" id="clist-maybe" data-key="maybe">
-        <h2>Maybe</h2>
+        <h2>Maybe <span class="count"></span></h2>
         <form class="add-form">
-          <input type="text" placeholder="Add maybe…" enterkeyhint="enter" autocomplete="off">
+          <input type="text" placeholder="Add something for later" enterkeyhint="enter" autocomplete="off">
         </form>
-        <ul class="list"></ul>
+        <ul class="list" data-empty="Nothing on the maybe list"></ul>
       </div>
     </section>
 

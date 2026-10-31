@@ -8,6 +8,12 @@ The app lives at https://george-hawkins.github.io/japanese-study-app/
 
 The icon is a daruma doll with only one eye painted in. Traditionally you paint in one eye when you set a goal and the other when you achieve it.
 
+<p>
+  <img src="design/screenshots/kanji.png" alt="Kanji page" width="30%">
+  <img src="design/screenshots/corrections.png" alt="Corrections page" width="30%">
+  <img src="design/screenshots/settings.png" alt="Settings page" width="30%">
+</p>
+
 ## Activities
 
 **Kanji**: a list of English keywords for kanji you've forgotten, next to a scratch pad for writing kanji with your finger.

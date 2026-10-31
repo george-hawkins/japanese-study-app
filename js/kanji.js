@@ -60,7 +60,6 @@ export function initKanji(doc) {
 
   const setHidden = (hidden) => {
     page.classList.toggle('list-hidden', hidden);
-    toggle.textContent = hidden ? '▶' : '◀';
     save('kanji:listHidden', hidden);
     if (!hidden) restoreScroll();
   };

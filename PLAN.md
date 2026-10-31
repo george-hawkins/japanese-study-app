@@ -101,6 +101,17 @@ Daruma (the repo is `japanese-study-app`) is a small installable web app (PWA) f
 - Skipped: per-device `apple-touch-startup-image` splash screens.
 - iOS clears storage of non-installed sites after 7 days unused; home-screen apps are exempt, and GitHub has the data anyway.
 
+### Visual design
+- Concept: *genkō yōshi* (red-ruled Japanese manuscript paper) with the daruma's colours.
+  - Daruma red `#b5162b`: top bar and primary buttons.
+  - Gold `#e6c877` / `#c9a14a`: the active tab and Undo.
+  - White paper, with pale vermilion rules (`#efcbc5`, `#e2a59c`) for list lines and guides.
+- The drawing pad shows one practice square with a dashed 十 guide. It's CSS behind the canvas, so Clear doesn't remove it, and it's sized with container query units.
+- Swiping a correction reveals a 済 ("done") seal. "Maybe" sits on faintly tinted paper, with a muted heading, to show it's lower priority.
+- Line-style SVG icons: a cloud with a state mark for sync, sliders for settings.
+- System fonts only (Roboto and Noto Sans CJK on Android). Sentence-case headings, no all-caps labels.
+- Screenshots at Pixel 8a size (412×915 CSS px, DPR 2.625) are in `design/screenshots/`.
+
 ### Icon
 - A daruma doll with one eye painted in. Traditionally you paint one eye when you set a goal and the other when you achieve it. The belly has 学 in gold, on a cream background (`#f3ead7`, also the splash background). Theme colour `#c8102e`.
 - Source: `design/icon.svg`. PNGs were rendered with headless Chrome: the `maskable` version scales the artwork to 86 % to sit inside the safe zone. The 学 relies on a Japanese font at render time (Hiragino on macOS). To regenerate: `design/render-icons.sh`.

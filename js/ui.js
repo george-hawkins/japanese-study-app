@@ -36,7 +36,11 @@ function openDialog(build) {
     dlg.replaceChildren();
     build(dlg, done);
     dlg.onclose = () => resolve(value);
-    dlg.onclick = (e) => e.target === dlg && dlg.close(); // backdrop tap
+    // Close on a backdrop tap, but only one that started on the backdrop: the
+    // finger lifting at the end of the long-press that opened us doesn't count.
+    let downOnBackdrop = false;
+    dlg.onpointerdown = (e) => (downOnBackdrop = e.target === dlg);
+    dlg.onclick = (e) => e.target === dlg && downOnBackdrop && dlg.close();
     dlg.showModal();
   });
 }

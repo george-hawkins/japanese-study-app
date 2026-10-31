@@ -11,7 +11,7 @@ export function initCorrections(doc) {
   const parts = {};
   for (const key of KEYS) {
     const root = document.getElementById(`clist-${key}`);
-    parts[key] = { list: root.querySelector('.list'), form: root.querySelector('form'), input: root.querySelector('form input') };
+    parts[key] = { list: root.querySelector('.list'), form: root.querySelector('form'), input: root.querySelector('form input'), count: root.querySelector('.count') };
   }
   const items = (key) => doc.data[key];
   let editing = null; // token identifying the row currently being edited
@@ -27,6 +27,7 @@ export function initCorrections(doc) {
         if (focus && focus.key === key && focus.i > j) focus.i--;
       }
       parts[key].list.replaceChildren(...list.map((text, i) => row(key, i, text)));
+      parts[key].count.textContent = list.length || '';
     }
     if (focus) startEdit(focus.key, focus.i);
   }
@@ -34,7 +35,8 @@ export function initCorrections(doc) {
   function row(key, i, text) {
     const li = el('li', 'row');
     const bg = el('div', 'row-bg');
-    bg.append(el('span', null, '✓ Done'), el('span', null, 'Done ✓'));
+    bg.setAttribute('aria-hidden', 'true');
+    bg.append(el('span', 'seal', '済'), el('span', 'seal', '済'));
     const inner = el('div', 'row-inner', text);
     li.append(bg, inner);
     gestures(li, {
